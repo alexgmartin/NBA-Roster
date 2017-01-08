@@ -1,9 +1,8 @@
 # NBA-Roster
-<br>
 
 A C# REST API implementation that stores, updates and removes registration details using a txt file.
 
-
+<br>
 ![Alt text](registration_sample.png?raw=true "Registration")
 <br>
 <br>
