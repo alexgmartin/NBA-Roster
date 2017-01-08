@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-2.0.3.js"></script>
+    <script>
+       var uri = 'api/player';
+
+       $(document).ready(function () {
+
+           //Send ajax req
+           $.ajax({
+               type: 'GET',
+               url: uri,
+               success: function (data) {
+                   displayData(data);
+               }
+           })
+       });
+
+       function formatItem(item) {
+           return item.Registration_ID + ", " + item.Player_name + ", " + item.Team_name + ", " + item.Date_of_birth.replace('T00:00:00', '');
+       }
+
+       function displayData(data) {
+
+           $('ul').empty();
+           $.each(data, function (key, item) {
+               $('<li>', { text: formatItem(item) }).appendTo($('#players'));
+           });
+
+       }
+
+       function search() {
+
+           $('#player').empty();
+
+           var field = $('#mydropdown').find(":selected").text();
+           var value = document.getElementById('playerInfo').value;
+           
+           if (value == "") {
+               alert("Input must not be null");
+               return;
+           }
+
+           $.ajax({
+               type: 'GET',
+               url: uri + '/' + field + '/' + value.toString(),
+               contentType: 'application/json; charset=utf-8',
+               data: JSON.stringify({ field: field, value: value }),
+               dataType: 'json',
+
+               success: function (data) {
+     
+                    $.each(data, function (key, item) {
+                        $('<li>', { text: formatItem(item) }).appendTo($('#player'));
+                    });
+               },
+
+               error: function (jqXHR, textStatus, err) {                
+                   $('#player').text('The Error is' + err);
+               }
+           })
+       }
+
+       function updatePlayerList() {
+           //Send ajax req
+           $.ajax({
+               type: 'GET',
+               url: uri,
+               success: function (data) {
+                   displayData(data);
+               }
+           })
+       }
+
+       function remove() {
+
+           var field = $('#mydropdown').find(":selected").text();
+           var value = document.getElementById('playerInfo').value;
+
+           $.ajax({
+               type: 'DELETE',
+               url: uri + '/' + 'delete' + '/' + field + '/' + value.toString(),
+               contentType: 'application/json; charset=utf-8',
+               data: JSON.stringify({ field: field, value: value }),
+               dataType: 'json',
+
+               success: function (data) {
+                   updatePlayerList();
+               },
+               error: function (jqXHR, textStatus, err) {
+                   alert("error");
+                   $('#playerInfo').text('Not Found');
+               }
+
+           })
+
+       }
+
+
+       function register() {
+
+           var registerId = document.getElementById('registerId').value.toString();
+           var registerFirstName = document.getElementById('registerFirstName').value;
+           var registerLastName = document.getElementById('registerLastName').value;
+           var registerTeamName = document.getElementById('registerTeamName').value;
+           var registerDOB = document.getElementById('registerDOB').value.split("/").join("-");;
+
+           if (registerId == "" || registerFirstName == "" || registerLastName == "" || registerTeamName == "" ||
+              registerDOB == "") {
+               alert("Input must not be null");
+               return;
+           }
+
+           $.ajax({
+               type: 'POST',
+               url: uri + '/' + 'register' + '/' + registerId + '/' + registerFirstName + '/' + 
+                   registerLastName + '/' + registerTeamName + '/' + registerDOB,
+               contentType: 'application/json; charset=utf-8',
+               data: JSON.stringify({
+                   registerId: registerId, registerFirstName: registerFirstName, registerLastName: registerLastName,
+                   registerTeamName: registerTeamName, registerDOB: registerDOB  }),
+               dataType: 'json',
+
+               success: function (data) {
+                   updatePlayerList();
+               },
+               error: function (jqXHR, textStatus, err) {
+                   alert("error");
+                   $('#playerInfo').text('Not Found');
+               }
+
+           })
+
+       }
+
+    </script>
+    
+  
+</head>
+
+<body>
+
+
+    <div>
+        <h2> Players </h2>
+        <ul id="players" />
+
+
+    </div>
+
+
+    <div>
+        <h2> Search or Delete </h2>
+       
+        <select id="mydropdown">
+             <option>ID</option>
+             <option>Name</option>
+             <option>Team</option>
+             <option>DOB</option>            
+        </select>
+
+        <input type="text" id="playerInfo" size="30" />
+        <input type="button" value="Search" onclick="search();" />
+        <input type="button" value="Delete" onclick="remove();" />
+    
+        <p id="player" />
+
+      
+        <br />
+        <br />
+        <h2> Player Register</h2>
+        <p>Registration ID:</p>
+        <input type="text" id="registerId" size="30" />
+        <p>First Name:</p>
+        <input type="text" id="registerFirstName" size="30" />
+        <p>Last Name:</p>
+        <input type="text" id="registerLastName" size="30" />
+        <p>Team Name:</p>
+        <input type="text" id="registerTeamName" size="30" />
+        <p>Date of Birth:</p>
+        <input type="text" id="registerDOB" size="30" />
+        <input type="button" value="Player Registration" onclick="register();" />
+
+    </div>
+
+</body>
+</html>
